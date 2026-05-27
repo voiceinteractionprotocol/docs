@@ -124,7 +124,14 @@ The current v0.1 draft establishes the core interaction model. The next phases w
 
 ## License
 
-This specification is published under [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/).
+The **specification text** (`docs/`) is licensed under
+[Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/) —
+anyone can implement, share, and build on the spec with attribution.
+
+The **site source code** (`src/`, `static/`, config files) is licensed under the
+[Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+
+Copyright 2026 Voice Interaction Protocol Contributors.
 
 ---
 
