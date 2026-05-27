@@ -1,0 +1,103 @@
+
+State Diagram
+
+```mermaid
+sequenceDiagram
+    autonumber
+    
+    box "VIP Client Environment" #f9f9f9
+        participant GA as Gateway Side A<br/>(System/IO Layer)
+        participant GB as Gateway Side B<br/>(Router/Network Layer)
+    end
+    
+    participant VS as VIP Server
+    participant P as Provider (AI/LLM)
+
+    Note over GA, GB: Side A: Handles Mic/Speaker, Local States, Local Functions<br/>Side B: Handles Routing (Direct vs Proxy)
+
+    %% --- INITIALIZATION ---
+    critical Session Initialization
+        GB->>VS: Initiate Connection & Auth
+        VS-->>GB: Session Established + Config (Mode: Direct/Proxy)
+        GA->>GA: Expose Default Functions<br/>(get_system_states, get_system_functions)
+        VS->>VS: Expose Server Functions/States
+    end
+
+    %% --- DIRECT MODE FLOW ---
+    rect rgb(230, 240, 255)
+        note right of GB: MODE: DIRECT (Client talks to Provider)
+        
+        %% 1. Audio Flow
+        par Audio Streaming
+            GA->>GA: Capture Mic Input
+            GA->>GB: Pass Audio Data
+            GB->>P: Stream Audio (Direct)
+            P-->>GB: Stream Response Audio
+            GB->>GA: Pass Audio Data
+            GA->>GA: Play Speaker Output
+        end
+
+        %% 2. State Updates
+        par Client State Change
+            GA->>GA: Local System State Change
+            GA->>GB: Send State Update Event
+            GB->>P: Sync State Context
+        end
+
+        %% 3. Client Function Invocation
+        par Client Function Call
+            P->>GB: Invoke Request: "ClientFunction_X"
+            GB->>GA: Trigger Function_X
+            GA->>GA: Execute Logic
+            GA->>GB: Return Result/Event
+            GB->>P: Send Result
+        end
+
+        %% 4. Server Function Invocation (Special Case in Direct Mode)
+        par Server Function Call via Client
+            Note over GB, VS: Special Case: Provider asks Client to call Server
+            P->>GB: Invoke Request: "ServerFunction_Y"
+            GB->>VS: Forward Request: "ServerFunction_Y"
+            VS->>VS: Execute Server Logic
+            VS-->>GB: Return Result
+            GB->>P: Send Result
+        end
+    end
+
+    %% --- PROXY MODE FLOW ---
+    rect rgb(255, 240, 230)
+        note right of GB: MODE: PROXY (Client talks to Server)
+
+        %% 1. Audio Flow via Proxy
+        par Audio Streaming
+            GA->>GB: Pass Audio Data
+            GB->>VS: Stream Audio
+            VS->>P: Proxy Audio
+            P-->>VS: Proxy Response
+            VS-->>GB: Stream Response
+            GB->>GA: Pass Audio Data
+        end
+
+        %% 2. State Updates via Proxy
+        par Client State Change
+            GA->>GB: Send State Update
+            GB->>VS: Forward State Update
+            VS->>P: Sync State Context
+        end
+        
+        par Server State Change
+            VS->>VS: Server State Change
+            VS->>P: Sync State Context
+        end
+
+        %% 3. Function Invocation via Proxy
+        par Client Function Call
+            P->>VS: Invoke: "ClientFunction_X"
+            VS->>GB: Forward Request
+            GB->>GA: Trigger Function
+            GA->>GB: Return Result
+            GB->>VS: Forward Result
+            VS->>P: Send Result
+        end
+    end
+```

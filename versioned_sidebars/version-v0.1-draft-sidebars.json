@@ -1,0 +1,11 @@
+{
+  "specSidebar": [
+    "spec/introduction",
+    "spec/scope-and-goals",
+    "spec/terminology-and-definitions",
+    "spec/protocol-overview",
+    "spec/core-intercation-model",
+    "spec/standard-interaction-primitives",
+    "spec/state-and-flow-management"
+  ]
+}
